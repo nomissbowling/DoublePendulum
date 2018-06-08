@@ -83,6 +83,7 @@ public class DoublePendulum : MonoBehaviour {
     Debug.Log(GV.Title + " 日本語 UTF8 Start.");
     go = GameObject.Find("GameObject"); // default
     Debug.Log(go);
+    // Camera cam = go.GetComponent<Camera>(); // null
     cam = GameObject.Find("Main Camera"); // default
     Debug.Log(cam);
 /*
