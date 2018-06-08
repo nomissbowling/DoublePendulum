@@ -23,6 +23,7 @@ public static class GV {
   static public float dT = 0.00001f; // 0.000001f;
   static public int nEuler = 5000;
   static public float convlen = 3.0f;
+  static public float z = 2.0f;
 
   static public float len0 = 1.4f;
   static public float m0 = 1.2f;
@@ -59,11 +60,12 @@ public static class GV {
     // mtrl.shader = Shader.Find("Specular");
     // mtrl.SetColor("_SpecColor", c);
   }
-  static public void roofpos(GameObject o, Vector3 p, Color c, int n){
+  static public void roofpos(GameObject o, Vector3 p, float a, Color c, int n){
     float th = ((float)Math.PI / 60.0f) * n;
     float s = sin(th / 2.0f);
     o.transform.position = p;
     o.transform.rotation = new Quaternion(s, s, s, cos(th / 2.0f));
+    o.transform.localScale = a * new Vector3(1.0f, 1.0f, 1.0f);
     o.GetComponent<Renderer>().material.color = c;
   }
 }
@@ -96,11 +98,20 @@ public class DoublePendulum : MonoBehaviour {
     Debug.Log(e);
     e.transform.Translate(-1.0f, 0.0f, 0.0f);
 */
+/*
+    // load pre-set objects
     cube = GameObject.Find("Cube");
     cylinder0 = GameObject.Find("Cylinder0");
     sphere0 = GameObject.Find("Sphere0");
     cylinder1 = GameObject.Find("Cylinder1");
     sphere1 = GameObject.Find("Sphere1");
+*/
+    // create objects
+    cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+    cylinder0 = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+    sphere0 = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+    cylinder1 = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+    sphere1 = GameObject.CreatePrimitive(PrimitiveType.Sphere);
   }
 
   void Update(){
@@ -125,13 +136,12 @@ public class DoublePendulum : MonoBehaviour {
       GV.th1 += GV.w1 * GV.dT;
     }
 
-    float z = 2.0f;
-    Vector3 c = new Vector3(0.0f, 4.0f, z);
+    Vector3 c = new Vector3(0.0f, 4.0f, GV.z);
     Vector3 p0 = new Vector3(c.x + GV.convlen * GV.len0 * GV.sin(GV.th0),
-      c.y - GV.convlen * GV.len0 * GV.cos(GV.th0), z);
+      c.y - GV.convlen * GV.len0 * GV.cos(GV.th0), GV.z);
     Vector3 p1 = new Vector3(p0.x + GV.convlen * GV.len1 * GV.sin(GV.th1),
-      p0.y - GV.convlen * GV.len1 * GV.cos(GV.th1), z);
-    GV.roofpos(cube, c, Color.blue, cnt / 60);
+      p0.y - GV.convlen * GV.len1 * GV.cos(GV.th1), GV.z);
+    GV.roofpos(cube, c, 0.7f, Color.blue, cnt / 60);
     GV.rotpos(cylinder0, p0, c, GV.len0);
     GV.scapos(sphere0, p0, GV.m0, Color.yellow);
     GV.rotpos(cylinder1, p1, p0, GV.len1);
