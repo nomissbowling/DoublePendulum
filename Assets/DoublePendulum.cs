@@ -72,7 +72,7 @@ public static class GV {
 
 public class DoublePendulum : MonoBehaviour {
   int cnt = 0;
-  GameObject go;
+  GameObject go, cam;
   GameObject cube, cylinder0, sphere0, cylinder1, sphere1;
 
   void OnDestroy(){
@@ -83,6 +83,8 @@ public class DoublePendulum : MonoBehaviour {
     Debug.Log(GV.Title + " 日本語 UTF8 Start.");
     go = GameObject.Find("GameObject"); // default
     Debug.Log(go);
+    cam = GameObject.Find("Main Camera"); // default
+    Debug.Log(cam);
 /*
     // Debug.Log(go.GetComponent<...>()); // class name
     GameObject c = GameObject.Find("Cube");
@@ -146,5 +148,11 @@ public class DoublePendulum : MonoBehaviour {
     GV.scapos(sphere0, p0, GV.m0, Color.yellow);
     GV.rotpos(cylinder1, p1, p0, GV.len1);
     GV.scapos(sphere1, p1, GV.m1, Color.green);
+
+    float pt = GV.sin(((float)Math.PI / 60.0f) * cnt);
+    float th = ((float)Math.PI / 60.0f) * 6 * pt;
+    float qs = GV.sin(th / 2.0f);
+    float qc = GV.cos(th / 2.0f);
+    cam.transform.rotation = new Quaternion(qs, 0.0f, 0.0f, qc);
   }
 }
