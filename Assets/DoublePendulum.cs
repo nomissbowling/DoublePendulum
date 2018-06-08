@@ -23,8 +23,9 @@ public static class GV {
   static public float dT = 0.00001f; // 0.000001f;
   static public int nEuler = 5000;
   static public float convlen = 3.0f;
-  static public float z = 2.0f;
+  static public float z = 2.0f; // sphere position
   static public float t3 = (float)Math.PI / 60.0f;
+  static public float cr = -20.0f; // camera position
 
   static public float len0 = 1.4f;
   static public float m0 = 1.2f;
@@ -54,10 +55,10 @@ public static class GV {
     o.transform.position = p;
     o.transform.localScale = cbrt(m) * new Vector3(1.0f, 1.0f, 1.0f);
     Renderer rend = o.GetComponent<Renderer>();
-    Material mtrl = rend.material;
+    Material mtrl = rend.material; // .sharedMaterial to change all instance
     // mtrl.shader = Shader.Find("_Color");
     mtrl.color = c; // _Color
-    // mtrl.SetColor("_TintColor", c);
+    // if(mtrl.HasProperty("_TintColor")) mtrl.SetColor("_TintColor", c);
     // mtrl.shader = Shader.Find("Specular");
     // mtrl.SetColor("_SpecColor", c);
   }
@@ -84,8 +85,9 @@ public class DoublePendulum : MonoBehaviour {
     Debug.Log(GV.Title + " 日本語 UTF8 Start.");
     go = GameObject.Find("GameObject"); // default
     Debug.Log(go);
-    // Camera cam = go.GetComponent<Camera>(); // null
-    cam = GameObject.Find("Main Camera"); // default
+    // Camera cam = go.GetComponent<Camera>(); // null (UnityEngine.Camera)
+    // Camera cam = Camera.main; // default (UnityEngine.Camera)
+    cam = GameObject.Find("Main Camera"); // default (UnityEngine.GameObject)
     Debug.Log(cam);
 /*
     // Debug.Log(go.GetComponent<...>()); // class name
@@ -153,7 +155,7 @@ public class DoublePendulum : MonoBehaviour {
 
     float pt = GV.t3 * cnt / 30;
     cam.transform.position = new Vector3(
-      -10.0f * GV.sin(pt), 4.5f, -10.0f * GV.cos(pt));
+      GV.cr * GV.sin(pt), 4.5f, GV.cr * GV.cos(pt));
     float ps = GV.sin(pt / 2.0f);
     float pc = GV.cos(pt / 2.0f);
     Quaternion qp = new Quaternion(0.0f, ps, 0.0f, pc);
