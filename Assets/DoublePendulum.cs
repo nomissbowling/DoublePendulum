@@ -20,16 +20,16 @@ public static class GV {
   static public string Title = "DoublePendulum";
 
   static public float gra = 9.8f;
-  static public float dT = 0.000001f;
+  static public float dT = 0.00001f; // 0.000001f;
   static public int nEuler = 5000;
   static public float convlen = 3.0f;
 
-  static public float len0 = 1.3f; // 1.4f;
+  static public float len0 = 1.4f;
   static public float m0 = 1.2f;
   static public float th0 = 3.1f;
   static public float w0 = 0.0f; // th0dot
-  static public float len1 = 0.9f; // 1.2f;
-  static public float m1 = 0.1f;
+  static public float len1 = 0.7f;
+  static public float m1 = 0.3f;
   static public float th1 = -2.0f;
   static public float w1 = 0.0f; // th1dot
 
@@ -37,15 +37,34 @@ public static class GV {
   static public float cos(float th){ return (float)Math.Cos(th); }
   static public float sin(float th){ return (float)Math.Sin(th); }
   static public float atan(float m){ return (float)Math.Atan(m); }
-  static public Quaternion tan2q(Vector2 e, Vector2 s){
-    // float th = ((float)Math.PI / 2.0f) + GV.atan((e.y - s.y) / (e.x - s.x));
-    float th = GV.atan(-(e.x - s.x) / (e.y - s.y));
+  static public Quaternion tan2q(Vector3 e, Vector3 s){
+    float th = -((float)Math.PI / 2.0f) + GV.atan((e.y - s.y) / (e.x - s.x));
+    // float th = GV.atan(-(e.x - s.x) / (e.y - s.y));
     return new Quaternion(0.0f, 0.0f, sin(th / 2.0f), cos(th / 2.0f));
   }
-  static public void rotpos(GameObject o, Vector2 e, Vector2 s, float z){
-    Vector2 m = (s + e) /  2.0f;
-    o.transform.position = new Vector3(m.x, m.y, z);
+  static public void rotpos(GameObject o, Vector3 e, Vector3 s, float len){
+    o.transform.position = (s + e) /  2.0f;
     o.transform.rotation = tan2q(e, s);
+    o.transform.localScale = new Vector3(0.1f, convlen * len / 2.0f, 0.1f);
+    o.GetComponent<Renderer>().material.color = Color.red;
+  }
+  static public void scapos(GameObject o, Vector3 p, float m, Color c){
+    o.transform.position = p;
+    o.transform.localScale = cbrt(m) * new Vector3(1.0f, 1.0f, 1.0f);
+    Renderer rend = o.GetComponent<Renderer>();
+    Material mtrl = rend.material;
+    // mtrl.shader = Shader.Find("_Color");
+    mtrl.color = c; // _Color
+    // mtrl.SetColor("_TintColor", c);
+    // mtrl.shader = Shader.Find("Specular");
+    // mtrl.SetColor("_SpecColor", c);
+  }
+  static public void roofpos(GameObject o, Vector3 p, Color c, int n){
+    float th = ((float)Math.PI / 60.0f) * n;
+    float s = sin(th / 2.0f);
+    o.transform.position = p;
+    o.transform.rotation = new Quaternion(s, s, s, cos(th / 2.0f));
+    o.GetComponent<Renderer>().material.color = c;
   }
 }
 
@@ -107,18 +126,15 @@ public class DoublePendulum : MonoBehaviour {
     }
 
     float z = 2.0f;
-    Vector3 r = new Vector3(1.0f, 1.0f, 1.0f);
-    Vector2 c = new Vector2(0.0f, 4.0f);
-    Vector2 p0 = new Vector2(c.x + GV.convlen * GV.len0 * GV.sin(GV.th0),
-      c.y - GV.convlen * GV.len0 * GV.cos(GV.th0));
-    Vector2 p1 = new Vector2(p0.x + GV.convlen * GV.len1 * GV.sin(GV.th1),
-      p0.y - GV.convlen * GV.len1 * GV.cos(GV.th1));
-    cube.transform.position = new Vector3(c.x, c.y, z); // 00FF00FF
-    GV.rotpos(cylinder0, p0, c, z); // 000000FF
-    sphere0.transform.position = new Vector3(p0.x, p0.y, z); // 0000FFFF
-    sphere0.transform.localScale = GV.cbrt(GV.m0) * r;
-    GV.rotpos(cylinder1, p1, p0, z); // 000000FF
-    sphere1.transform.position = new Vector3(p1.x, p1.y, z); // FF0000FF
-    sphere1.transform.localScale = GV.cbrt(GV.m1) * r;
+    Vector3 c = new Vector3(0.0f, 4.0f, z);
+    Vector3 p0 = new Vector3(c.x + GV.convlen * GV.len0 * GV.sin(GV.th0),
+      c.y - GV.convlen * GV.len0 * GV.cos(GV.th0), z);
+    Vector3 p1 = new Vector3(p0.x + GV.convlen * GV.len1 * GV.sin(GV.th1),
+      p0.y - GV.convlen * GV.len1 * GV.cos(GV.th1), z);
+    GV.roofpos(cube, c, Color.blue, cnt / 60);
+    GV.rotpos(cylinder0, p0, c, GV.len0);
+    GV.scapos(sphere0, p0, GV.m0, Color.yellow);
+    GV.rotpos(cylinder1, p1, p0, GV.len1);
+    GV.scapos(sphere1, p1, GV.m1, Color.green);
   }
 }
