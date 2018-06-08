@@ -24,6 +24,7 @@ public static class GV {
   static public int nEuler = 5000;
   static public float convlen = 3.0f;
   static public float z = 2.0f;
+  static public float t3 = (float)Math.PI / 60.0f;
 
   static public float len0 = 1.4f;
   static public float m0 = 1.2f;
@@ -61,7 +62,7 @@ public static class GV {
     // mtrl.SetColor("_SpecColor", c);
   }
   static public void roofpos(GameObject o, Vector3 p, float a, Color c, int n){
-    float th = ((float)Math.PI / 60.0f) * n;
+    float th = t3 * n;
     float s = sin(th / 2.0f);
     o.transform.position = p;
     o.transform.rotation = new Quaternion(s, s, s, cos(th / 2.0f));
@@ -150,10 +151,18 @@ public class DoublePendulum : MonoBehaviour {
     GV.rotpos(cylinder1, p1, p0, GV.len1);
     GV.scapos(sphere1, p1, GV.m1, Color.green);
 
-    float pt = GV.sin(((float)Math.PI / 60.0f) * cnt);
-    float th = ((float)Math.PI / 60.0f) * 6 * pt;
-    float qs = GV.sin(th / 2.0f);
-    float qc = GV.cos(th / 2.0f);
-    cam.transform.rotation = new Quaternion(qs, 0.0f, 0.0f, qc);
+    float pt = GV.t3 * cnt / 30;
+    cam.transform.position = new Vector3(
+      -10.0f * GV.sin(pt), 4.5f, -10.0f * GV.cos(pt));
+    float ps = GV.sin(pt / 2.0f);
+    float pc = GV.cos(pt / 2.0f);
+    Quaternion qp = new Quaternion(0.0f, ps, 0.0f, pc);
+    float tt = GV.t3 * 6 * GV.sin(GV.t3 * cnt);
+    float ts = GV.sin(tt / 2.0f);
+    float tc = GV.cos(tt / 2.0f);
+    Quaternion qx = new Quaternion(ts, 0.0f, 0.0f, tc);
+    Quaternion qy = new Quaternion(0.0f, ts, 0.0f, tc);
+    // cam.transform.rotation = qp * qy * qx; // water level
+    cam.transform.rotation = qy * qx * qp; // yawing pitching rolling
   }
 }
