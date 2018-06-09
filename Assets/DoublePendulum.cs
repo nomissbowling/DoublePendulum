@@ -43,7 +43,7 @@ public static class GV {
   static public Quaternion tan2q(Vector3 e, Vector3 s){
     float th = -((float)Math.PI / 2.0f) + GV.atan((e.y - s.y) / (e.x - s.x));
     // float th = GV.atan(-(e.x - s.x) / (e.y - s.y));
-    return new Quaternion(0.0f, 0.0f, sin(th / 2.0f), cos(th / 2.0f));
+    return new Quaternion(0.0f, 0.0f, sin(th / 2.0f), cos(th / 2.0f)); // r = 1
   }
   static public void rotpos(GameObject o, Vector3 e, Vector3 s, float len){
     o.transform.position = (s + e) /  2.0f;
@@ -64,11 +64,19 @@ public static class GV {
   }
   static public void roofpos(GameObject o, Vector3 p, float a, Color c, int n){
     float th = t3 * n;
-    float s = sin(th / 2.0f);
+    float sr = sin(th / 2.0f) / (float)Math.Sqrt(3.0f);
     o.transform.position = p;
-    o.transform.rotation = new Quaternion(s, s, s, cos(th / 2.0f));
+    o.transform.rotation = new Quaternion(sr, sr, sr, cos(th / 2.0f));
     o.transform.localScale = a * new Vector3(1.0f, 1.0f, 1.0f);
     o.GetComponent<Renderer>().material.color = c;
+  }
+  static public void camrot(GameObject o, int n, Quaternion q){
+    float th = t3 * n;
+    o.transform.position = new Vector3(cr * sin(th), 4.5f, cr * cos(th));
+    float s = sin(th / 2.0f); // r = 1
+    Quaternion qp = new Quaternion(0.0f, s, 0.0f, cos(th / 2.0f));
+    // o.transform.rotation = qp * q; // water level
+    o.transform.rotation = q * qp; // yawing pitching rolling
   }
 }
 
@@ -85,8 +93,10 @@ public class DoublePendulum : MonoBehaviour {
     Debug.Log(GV.Title + " 日本語 UTF8 Start.");
     go = GameObject.Find("GameObject"); // default
     Debug.Log(go);
-    // Camera cam = go.GetComponent<Camera>(); // null (UnityEngine.Camera)
-    // Camera cam = Camera.main; // default (UnityEngine.Camera)
+    // // Camera _cam = go.GetComponent<Camera>(); // null (UnityEngine.Camera)
+    // Camera _cam = Camera.main; // default (UnityEngine.Camera)
+    // Debug.Log(_cam.ViewportToWorldPoint(new Vector2(1.0f, 1.0f)));
+    // // output: (0.0, 4.5, -10.0)
     cam = GameObject.Find("Main Camera"); // default (UnityEngine.GameObject)
     Debug.Log(cam);
 /*
@@ -153,18 +163,11 @@ public class DoublePendulum : MonoBehaviour {
     GV.rotpos(cylinder1, p1, p0, GV.len1);
     GV.scapos(sphere1, p1, GV.m1, Color.green);
 
-    float pt = GV.t3 * cnt / 30;
-    cam.transform.position = new Vector3(
-      GV.cr * GV.sin(pt), 4.5f, GV.cr * GV.cos(pt));
-    float ps = GV.sin(pt / 2.0f);
-    float pc = GV.cos(pt / 2.0f);
-    Quaternion qp = new Quaternion(0.0f, ps, 0.0f, pc);
     float tt = GV.t3 * 6 * GV.sin(GV.t3 * cnt);
-    float ts = GV.sin(tt / 2.0f);
+    float ts = GV.sin(tt / 2.0f); // r = 1
     float tc = GV.cos(tt / 2.0f);
     Quaternion qx = new Quaternion(ts, 0.0f, 0.0f, tc);
     Quaternion qy = new Quaternion(0.0f, ts, 0.0f, tc);
-    // cam.transform.rotation = qp * qy * qx; // water level
-    cam.transform.rotation = qy * qx * qp; // yawing pitching rolling
+    GV.camrot(cam, cnt / 30, qy * qx);
   }
 }
