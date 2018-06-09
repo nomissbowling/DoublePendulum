@@ -3,6 +3,7 @@
 
   Camera        (   .0,  4.5,-10.0) ( -1.0,   .0,   .0) (  1.0,  1.0,  1.0)
 
+  Stage         (   .0, -5.0,  2.0) (   .0,   .0,   .0) ( 20.0,   .2, 20.0)
   Cube          (   .0,  4.0,  2.0) (   .0,   .0,   .0) (  1.0,  1.0,  1.0)
   Cylinder0     (   .0,  2.5,  2.0) (   .0,   .0,   .0) (   .1,  1.5,   .1)
   Sphere0       (   .0,  1.0,  2.0) (   .0,   .0,   .0) (  1.0,  1.0,  1.0)
@@ -70,6 +71,12 @@ public static class GV {
     o.transform.localScale = a * new Vector3(1.0f, 1.0f, 1.0f);
     o.GetComponent<Renderer>().material.color = c;
   }
+  static public void stagepos(GameObject o, Vector3 p, float m, Color c){
+    float l = convlen * m;
+    o.transform.position = new Vector3(p.x, p.y - l, p.z);
+    o.transform.localScale = new Vector3(2.0f * l, .2f, 2.0f * l);
+    o.GetComponent<Renderer>().material.color = c;
+  }
   static public void camrot(GameObject o, int n, Quaternion q){
     float th = t3 * n;
     o.transform.position = new Vector3(cr * sin(th), 4.5f, cr * cos(th));
@@ -83,7 +90,7 @@ public static class GV {
 public class DoublePendulum : MonoBehaviour {
   int cnt = 0;
   GameObject go, cam;
-  GameObject cube, cylinder0, sphere0, cylinder1, sphere1;
+  GameObject stage, cube, cylinder0, sphere0, cylinder1, sphere1;
 
   void OnDestroy(){
     Debug.Log(GV.Title + " Destroy.");
@@ -123,6 +130,7 @@ public class DoublePendulum : MonoBehaviour {
     sphere1 = GameObject.Find("Sphere1");
 */
     // create objects
+    stage = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
     cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
     cylinder0 = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
     sphere0 = GameObject.CreatePrimitive(PrimitiveType.Sphere);
@@ -152,18 +160,18 @@ public class DoublePendulum : MonoBehaviour {
       GV.th1 += GV.w1 * GV.dT;
     }
 
-    float duration = 1.0f;
-    float lerp = Mathf.PingPong(Time.time, duration) / duration; // 0.0f - 1.0f
-    Color cc = Color.Lerp(Color.red, Color.yellow, lerp);
+    float lerp = Mathf.PingPong(Time.time / 6.0f, 1.0f); // 0.0f - 1.0f
+    Color cc = Color.Lerp(Color.magenta, Color.yellow, lerp);
 
     Vector3 c = new Vector3(0.0f, 4.0f, GV.z);
     Vector3 p0 = new Vector3(c.x + GV.convlen * GV.len0 * GV.sin(GV.th0),
       c.y - GV.convlen * GV.len0 * GV.cos(GV.th0), GV.z);
     Vector3 p1 = new Vector3(p0.x + GV.convlen * GV.len1 * GV.sin(GV.th1),
       p0.y - GV.convlen * GV.len1 * GV.cos(GV.th1), GV.z);
+    GV.stagepos(stage, c, 1.5f * (GV.len0 + GV.len1), cc);
     GV.roofpos(cube, c, 0.7f, Color.blue, cnt / 60);
     GV.rotpos(cylinder0, p0, c, GV.len0);
-    GV.scapos(sphere0, p0, GV.m0, cc);
+    GV.scapos(sphere0, p0, GV.m0, Color.yellow);
     GV.rotpos(cylinder1, p1, p0, GV.len1);
     GV.scapos(sphere1, p1, GV.m1, Color.green);
 
