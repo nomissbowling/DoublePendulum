@@ -152,6 +152,10 @@ public class DoublePendulum : MonoBehaviour {
       GV.th1 += GV.w1 * GV.dT;
     }
 
+    float duration = 1.0f;
+    float lerp = Mathf.PingPong(Time.time, duration) / duration; // 0.0f - 1.0f
+    Color cc = Color.Lerp(Color.red, Color.yellow, lerp);
+
     Vector3 c = new Vector3(0.0f, 4.0f, GV.z);
     Vector3 p0 = new Vector3(c.x + GV.convlen * GV.len0 * GV.sin(GV.th0),
       c.y - GV.convlen * GV.len0 * GV.cos(GV.th0), GV.z);
@@ -159,7 +163,7 @@ public class DoublePendulum : MonoBehaviour {
       p0.y - GV.convlen * GV.len1 * GV.cos(GV.th1), GV.z);
     GV.roofpos(cube, c, 0.7f, Color.blue, cnt / 60);
     GV.rotpos(cylinder0, p0, c, GV.len0);
-    GV.scapos(sphere0, p0, GV.m0, Color.yellow);
+    GV.scapos(sphere0, p0, GV.m0, cc);
     GV.rotpos(cylinder1, p1, p0, GV.len1);
     GV.scapos(sphere1, p1, GV.m1, Color.green);
 
